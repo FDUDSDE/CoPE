@@ -46,4 +46,4 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(), args.lr, weight_decay=args.weight_decay)
     
     for epoch in range(50):
-        train_one_epoch(model, optimizer, train_dl, delta_coef, tbptt_len, valid_dl, test_dl, True)
+        train_one_epoch(model, optimizer, train_dl, delta_coef, tbptt_len, valid_dl, test_dl, False)

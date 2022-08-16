@@ -43,7 +43,7 @@ def train_one_epoch(model, optimizer, train_dl, delta_coef=1e-5, tbptt_len=20,
     if fast_eval:
         rollout_evaluate_fast(model, valid_dl, test_dl, last_xu.detach(), last_xi.detach())
     else:
-        raise NotImplementedError
+        rollout_evaluate(model, train_dl, valid_dl, test_dl)
 
 
 def rollout_evaluate_fast(model, valid_dl, test_dl, train_xu, train_xi):
@@ -51,6 +51,15 @@ def rollout_evaluate_fast(model, valid_dl, test_dl, train_xu, train_xi):
     print(f"------- Valid MRR: {mrr(valid_ranks):.4f} Recall@10: {recall_at_k(valid_ranks, 10):.4f}")
     _u, _i, test_ranks = rollout(test_dl, model, valid_xu, valid_xi)
     print(f"=======  Test MRR: {mrr(test_ranks):.4f} Recall@10: {recall_at_k(test_ranks, 10):.4f}")
+
+
+def rollout_evaluate(model, train_dl, valid_dl, test_dl):
+    train_xu, train_xi, train_ranks = rollout(train_dl, model, *model.get_init_states())
+    print(f"Train MRR: {mrr(train_ranks):.4f} Recall@10: {recall_at_k(train_ranks, 10):.4f}")
+    valid_xu, valid_xi, valid_ranks = rollout(valid_dl, model, train_xu, train_xi)
+    print(f"Valid MRR: {mrr(valid_ranks):.4f} Recall@10: {recall_at_k(valid_ranks, 10):.4f}")
+    _u, _i, test_ranks = rollout(test_dl, model, valid_xu, valid_xi)
+    print(f"Test MRR: {mrr(test_ranks):.4f} Recall@10: {recall_at_k(test_ranks, 10):.4f}")
 
 
 def rollout(dl, model, last_xu, last_xi):
